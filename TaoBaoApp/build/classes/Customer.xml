@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dao.CustomerDao">
+
+      <resultMap id="cusResult" type="Customer">  
+        <id property="cname" column="cname"/>
+        <result property="cpass" column="cpass"/>
+        <result property="cphone" column="cphone"/>
+        <result property="caddress" column="caddress"/>
+        <result property="crealname" column="crealname"/>
+      </resultMap>
+      
+      <!--定义可重用的sql语句  -->
+      <sql id="queryCustomer">select cname,cpass,cphone,caddress,crealname from customer</sql>
+      <sql id="insertCustomer">insert into customer(cname,cpass,cphone,caddress,crealname) </sql>
+
+      <select id="queryCustomerByNamepass" parameterType="java.util.Map" resultMap="cusResult"> 
+        <include refid="queryCustomer"/>
+	    WHERE
+		    <foreach collection="cusMap" index="userName" item="userPass" > 
+		             cname = '${userName}' 
+		        and  cpass = '${userPass}'
+		    </foreach>
+      </select>
+    
+    <select id="queryByCusName" parameterType="String" resultMap="cusResult">
+     
+     SELECT cname 
+     FROM   customer
+     WHERE  
+            <if test="_parameter != null and !(&quot;&quot;.equals(_parameter.trim()))">
+                cname = #{_parameter}                    
+            </if>
+    </select>
+           
+ 	<!-- 注册新用户 -->      
+ 
+    <insert id="insertCustomer" parameterType="java.util.Map">    
+       <include refid="insertCustomer"/>
+       VALUES
+       (
+            '${cname}',
+            '${cpass}',
+            '${cphone}',
+            '${caddress}',
+            '${crealname}'
+       )
+    </insert>
+</mapper>

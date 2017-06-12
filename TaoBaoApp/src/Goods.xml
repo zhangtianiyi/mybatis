@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dao.GoodsDao">
+
+	  <resultMap id="GoodsResult" type="Goods">  
+
+<!-- column：与查询的列名相同并非数据库里面的列名。比如select id a from 表名 查询的列名用了别名a那么就得对应的修改column="a"-->
+	    <id property="gid" column="gid"/>
+	    <result property="gname" column="gname"/>
+	    <result property="gmade" column="gmade"/>
+	    <result property="gprice" column="gprice"/>
+	    <result property="gbalance" column="gbalance"/>
+	    <result property="gstore" column="gstore"/>
+	    <result property="gnum" column="gnum"/>
+	             <!-- 这里有外key collections? -->
+	  </resultMap>
+	  
+	  <sql id="selectGoods">SELECT gid, gname, gmade, gprice, gbalance, gstore, gnum FROM goods </sql>
+	
+	       <!-- select查出来的信息放到<resultMap>对应的property变量名中 -->
+		<select id="queryGoods"  resultMap="GoodsResult">
+		   <include refid="selectGoods"/> 
+		</select>
+
+		<select id="queryGoodsByKeyWord" parameterType="String" resultMap="GoodsResult">
+		   <include refid="selectGoods"/>   
+		    WHERE gname LIKE CONCAT('%',#{gname},'%') 
+		</select>
+		
+		<select id="queryGoodsByStore" parameterType="int" resultMap="GoodsResult">
+		   <include refid="selectGoods"/>   
+		    WHERE gstore = #{sid} 
+		</select>
+
+    <!-- 批量更新商品数量 -->
+	<update id="updateGoods"  parameterType="java.util.List">
+		<!--  begin-->  
+	        <foreach collection="list" item="item" index="index" open="" close="" separator=";">   
+	            update goods 
+	            <set>
+		            <if test="item.gbalance>=0">
+		                gbalance = ${item.gbalance},
+		                gnum = ${item.gnum}
+		            </if>
+	            </set>
+	               where gid = ${item.gid}
+	            </foreach>
+      <!--  ;end; --> 
+    </update>
+</mapper>
